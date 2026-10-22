@@ -8,7 +8,8 @@ def match_order_stream(
     shared_buffer,
     shutdown_wrapper,
     trade_callback=None,
-    verbose=False
+    verbose=False,
+    metrics_callback=None
 ):
     last_processed_id = None
     buy_orders = []
@@ -47,6 +48,8 @@ def match_order_stream(
             )
 
         if side == "B":
+            levels_cleared = 0
+            order_started_ns = time.perf_counter_ns()
             while qty > 0 and sell_orders:
                 best_index = min(
                     range(len(sell_orders)),
@@ -62,6 +65,7 @@ def match_order_stream(
                     break
 
                 traded_qty = min(qty, resting["qty"])
+                trade_started_ns = time.perf_counter_ns()
 
                 if verbose:
                     print(
@@ -77,6 +81,10 @@ def match_order_stream(
                         resting["price"],
                         traded_qty
                     )
+                trade_latency_ns = time.perf_counter_ns() - trade_started_ns
+                if metrics_callback is not None:
+                    metrics_callback({"buy_order_id": order_id, "sell_order_id": resting["id"], "price": resting["price"], "quantity": traded_qty, "latency_ns": trade_latency_ns, "timestamp_ns": time.perf_counter_ns()})
+                levels_cleared += 1
 
                 qty -= traded_qty
                 resting["qty"] -= traded_qty
@@ -84,6 +92,8 @@ def match_order_stream(
                 if resting["qty"] == 0:
                     sell_orders.pop(best_index)
 
+            if verbose and levels_cleared > 1:
+                print(f"[WHALE BUY] order={order_id} cleared {levels_cleared} ask levels in {(time.perf_counter_ns() - order_started_ns) / 1000:.1f} us")
             if qty > 0:
                 buy_orders.append({
                     "id": order_id,
@@ -93,6 +103,8 @@ def match_order_stream(
                 })
 
         else:
+            levels_cleared = 0
+            order_started_ns = time.perf_counter_ns()
             while qty > 0 and buy_orders:
                 best_index = max(
                     range(len(buy_orders)),
@@ -123,6 +135,10 @@ def match_order_stream(
                         resting["price"],
                         traded_qty
                     )
+                trade_latency_ns = time.perf_counter_ns() - trade_started_ns
+                if metrics_callback is not None:
+                    metrics_callback({"buy_order_id": resting["id"], "sell_order_id": order_id, "price": resting["price"], "quantity": traded_qty, "latency_ns": trade_latency_ns, "timestamp_ns": time.perf_counter_ns()})
+                levels_cleared += 1
 
                 qty -= traded_qty
                 resting["qty"] -= traded_qty
@@ -130,6 +146,8 @@ def match_order_stream(
                 if resting["qty"] == 0:
                     buy_orders.pop(best_index)
 
+            if verbose and levels_cleared > 1:
+                print(f"[WHALE SELL] order={order_id} cleared {levels_cleared} bid levels in {(time.perf_counter_ns() - order_started_ns) / 1000:.1f} us")
             if qty > 0:
                 sell_orders.append({
                     "id": order_id,
