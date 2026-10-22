@@ -173,57 +173,6 @@
     if(Number.isFinite(bestAsk)&&Number.isFinite(bestBid)){$('spreadValue').textContent='$'+Math.max(0,bestAsk-bestBid).toFixed(2);$('midValue').textContent='$'+((bestAsk+bestBid)/2).toFixed(2);}
     notify(filled>0?('Demo matched '+filled+' '+symbol+' shares; '+remaining+' remaining.'):('Demo '+side+' order added to '+symbol+' book.'));
   });
-
-})();
-</script>
-</body>
-</html>+r.p.toFixed(2)+'</span><span>'+r.n+'</span><span>'+r.q+'</span></div>').join('');
-  }
-  function renderTrades() {
-    $('tradesBody').innerHTML = trades.slice(0,7).map(t => '<tr><td class="muted">'+t.time+'</td><td>'+t.buy+'</td><td>'+t.sell+'</td><td class="buy">$'+t.price.toFixed(2)+'</td><td>'+t.qty+'</td></tr>').join('');
-    $('tradeCountTag').textContent = trades.length+' shown';
-    $('tradesEmpty').hidden = trades.length > 0;
-  }
-  function notify(msg) { const t=$('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2600); }
-  function setRunning(next) {
-    running=next;
-    $('engineStatus').textContent=running?'SIMULATION RUNNING':'SIMULATION PAUSED';
-    $('statusDot').style.background=running?'var(--green)':'var(--amber)';
-    $('toggleEngine').textContent=running?'Ⅱ Pause simulation':'▶ Start simulation';
-    $('chartState').textContent=running?'Updating demo activity':'Waiting for simulation';
-    if(timer) clearInterval(timer);
-    timer=running?setInterval(()=>{orderCount+=Math.floor(Math.random()*8)+1;$('ordersMetric').textContent=orderCount.toLocaleString();$('throughputMetric').innerHTML=(18+Math.random()*1.5).toFixed(1)+'k <span style="font-size:12px;color:#9aa8bf">/ sec</span>'; $('latencyMetric').innerHTML=(9.5+Math.random()*3).toFixed(1)+' <span style="font-size:12px;color:#9aa8bf">ms</span>'; updateChart();},1800):null;
-  }
-  function updateChart() {
-    const vals=Array.from({length:12},()=>30+Math.random()*115);
-    const points=vals.map((v,i)=>(35+i*41.36)+' '+(160-v)).join(' L');
-    $('chartLine').setAttribute('d','M'+points);
-    $('chartArea').setAttribute('d','M'+points+' L490 165 L35 165Z');
-  }
-  $('toggleEngine').addEventListener('click',()=>setRunning(!running));
-  $('orderForm').addEventListener('submit',e=>{
-    e.preventDefault();
-    const side=$('side').value, symbol=$('symbol').value, price=Number($('price').value), qty=Number($('quantity').value);
-    if(!Number.isFinite(price)||price<=0||!Number.isInteger(qty)||qty<1){notify('Enter a valid price and whole-number quantity.');return;}
-    sequence++;orderCount++;$('ordersMetric').textContent=orderCount.toLocaleString();
-    const book=side==='BUY'?bids:asks, opposite=side==='BUY'?asks:bids;
-    const cross=side==='BUY'?price>=Math.min(...opposite.map(x=>x.p)):price<=Math.max(...opposite.map(x=>x.p));
-    if(cross) {
-      const level=opposite[side==='BUY'?opposite.length-1:0];
-      const matched=Math.min(qty,level.q);
-      const trade={time:new Date().toLocaleTimeString('en-GB',{hour12:false})+'.demo',buy:side==='BUY'?'B-'+sequence:'B-DEMO',sell:side==='SELL'?'S-'+sequence:'S-DEMO',price:level.p,qty:matched,symbol};
-      trades.unshift(trade);tradeCount++;$('tradesMetric').textContent=tradeCount.toLocaleString();renderTrades();
-      level.q=Math.max(0,level.q-matched);level.n=level.q?level.n:0;
-      renderBook('asks',asks,'sell');renderBook('bids',bids,'buy');
-      notify('Demo match created: '+matched+' '+symbol+' shares at $'+level.p.toFixed(2));
-    } else {
-      book.unshift({p:price,n:1,q:qty});book.sort((a,b)=>side==='BUY'?b.p-a.p:a.p-b.p);book.splice(5);
-      renderBook('asks',asks,'sell');renderBook('bids',bids,'buy');
-      notify(side+' demo order added to '+symbol+' book.');
-    }
-    $('spreadValue').textContent='$'+Math.abs(asks[asks.length-1].p-bids[0].p).toFixed(2);
-    $('midValue').textContent='$'+((asks[asks.length-1].p+bids[0].p)/2).toFixed(2);
-  });
   renderBook('asks',asks,'sell');renderBook('bids',bids,'buy');renderTrades();
 })();
 </script>
