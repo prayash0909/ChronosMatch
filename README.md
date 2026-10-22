@@ -22,6 +22,7 @@
 - `run_engine.py`: shared-memory streaming-engine runner with per-trade nanosecond telemetry written to `latency_metrics.csv`.
 - `market_sim/simulator.py`, `run_market_simulator.py`: asynchronous synthetic market firehose (best-effort target rate with ring-buffer back-pressure).
 - `audit_ipc_million.py`: multi-process FIFO integrity/stress audit; default target is 1,000,000 orders.
+- `report_latency.py`: p50/p95/p99 summary for recorded trade latency samples.
 - `test_market_simulator.py`: deterministic simulator tests.
 - `ui_persistence/ledger.py`: local trade-ledger persistence.
 - `test_*.py`: automated tests and focused test/experiment scripts.
@@ -76,7 +77,7 @@ In a separate terminal, run the asynchronous mock-market producer (the engine co
 python run_market_simulator.py --rate 100000
 ```
 
-To send a finite batch, use `python run_market_simulator.py --rate 100000 --orders 100000`. The rate is a best-effort target; actual throughput depends on the OS, buffer flushes, and consumer speed.
+To send a finite batch, use `python run_market_simulator.py --rate 100000 --orders 100000`. The rate is a best-effort target; actual throughput depends on the OS, buffer flushes, and consumer speed. After trades are recorded, summarize timing with `python report_latency.py`.
 
 Run the multi-process FIFO stress audit (default one million orders; may take several minutes on Windows):
 
