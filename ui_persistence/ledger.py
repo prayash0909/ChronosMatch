@@ -1,13 +1,27 @@
-﻿
+
 import sqlite3
+from contextlib import contextmanager
 from pathlib import Path
 
 
 class TradeLedger:
+    @contextmanager
+    def _connection(self):
+        """Yield a SQLite connection and always close it, including on Windows."""
+        connection = sqlite3.connect(self.db_path)
+        try:
+            yield connection
+            connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
+        finally:
+            connection.close()
+
     def __init__(self, db_path="chronosmatch.db"):
         self.db_path = Path(db_path)
 
-        with sqlite3.connect(self.db_path) as connection:
+        with self._connection() as connection:
             connection.execute("""
                 CREATE TABLE IF NOT EXISTS trades (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,7 +36,7 @@ class TradeLedger:
     def record_trade(
         self, buy_order_id, sell_order_id, price, quantity
     ):
-        with sqlite3.connect(self.db_path) as connection:
+        with self._connection() as connection:
             connection.execute("""
                 INSERT INTO trades (
                     buy_order_id, sell_order_id, price, quantity
@@ -31,7 +45,7 @@ class TradeLedger:
             """, (buy_order_id, sell_order_id, price, quantity))
 
     def get_recent_trades(self, limit=10):
-        with sqlite3.connect(self.db_path) as connection:
+        with self._connection() as connection:
             connection.row_factory = sqlite3.Row
             rows = connection.execute("""
                 SELECT * FROM trades
@@ -42,7 +56,7 @@ class TradeLedger:
             return [dict(row) for row in rows]
 
     def get_trade_analytics(self):
-        with sqlite3.connect(self.db_path) as connection:
+        with self._connection() as connection:
             result = connection.execute("""
                 SELECT
                     COUNT(*) AS total_trades,
