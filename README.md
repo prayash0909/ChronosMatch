@@ -19,7 +19,10 @@
 - `order.py`, `order_book.py`: order model and in-memory order book.
 - `matching_engine/`: matching engine core and Cython source.
 - `shared_memory/`: order-buffer implementation and experiments.
-- `run_engine.py`: streaming-engine runner.
+- `run_engine.py`: shared-memory streaming-engine runner with per-trade nanosecond telemetry written to `latency_metrics.csv`.
+- `market_sim/simulator.py`, `run_market_simulator.py`: asynchronous synthetic market firehose (best-effort target rate with ring-buffer back-pressure).
+- `audit_ipc_million.py`: multi-process FIFO integrity/stress audit; default target is 1,000,000 orders.
+- `test_market_simulator.py`: deterministic simulator tests.
 - `ui_persistence/ledger.py`: local trade-ledger persistence.
 - `test_*.py`: automated tests and focused test/experiment scripts.
 - `benchmark_*.py`, `BENCHMARK_RESULTS.md`: performance experiments and reported results.
@@ -65,6 +68,20 @@ Run the shared-memory producer/engine demo if the extension has been built and t
 
 ```powershell
 python run_engine.py
+```
+
+In a separate terminal, run the asynchronous mock-market producer (the engine consumer must be running in another process with the same shared-memory tag):
+
+```powershell
+python run_market_simulator.py --rate 100000
+```
+
+To send a finite batch, use `python run_market_simulator.py --rate 100000 --orders 100000`. The rate is a best-effort target; actual throughput depends on the OS, buffer flushes, and consumer speed.
+
+Run the multi-process FIFO stress audit (default one million orders; may take several minutes on Windows):
+
+```powershell
+python audit_ipc_million.py --orders 1000000 --timeout 300
 ```
 
 Check each script's source and expected inputs before running it. Some helpers use a local SQLite database; local database files are intentionally excluded from Git.
