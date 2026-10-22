@@ -94,7 +94,7 @@
     const visible = rows.filter(r => r.q > 0).slice(0,5);
     if (!visible.length) { $(id).innerHTML = '<div class="empty">No orders at this side</div>'; return; }
     const max = Math.max(...visible.map(r => r.q));
-    $(id).innerHTML = visible.map(r => '<div class="book-row"><div class="depth" style="width:'+(r.q/max*80)+'%;background:var(--'+(side==='buy'?'green':'red')+')"></div><span class="'+side+'">
+    $(id).innerHTML = visible.map(r => '<div class="book-row"><div class="depth" style="width:'+(r.q/max*80)+'%;background:var(--'+(side==='buy'?'green':'red')+')"></div><span class="'+side+'">$'+r.p.toFixed(2)+'</span><span>'+r.n+'</span><span>'+r.q+'</span></div>').join('');
   }
   function renderTrades() {
     $('tradesBody').innerHTML = trades.slice(0,7).map(t => '<tr><td class="muted">'+t.time+'</td><td>'+t.buy+'</td><td>'+t.sell+'</td><td class="buy">$'+t.price.toFixed(2)+'</td><td>'+t.qty+'</td></tr>').join('');
