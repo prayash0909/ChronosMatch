@@ -6,6 +6,7 @@ This is a local educational prototype, not a broker or live-exchange adapter.
 from __future__ import annotations
 
 import json
+import math
 import threading
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -71,14 +72,19 @@ class ChronosService:
         side = str(payload.get("side", "")).strip().upper()
         try:
             price = float(payload.get("price"))
-            quantity = int(payload.get("quantity"))
-        except (TypeError, ValueError):
+            raw_quantity = payload.get("quantity")
+            if isinstance(raw_quantity, bool):
+                raise ValueError
+            quantity = int(raw_quantity)
+            if isinstance(raw_quantity, float) and not raw_quantity.is_integer():
+                raise ValueError
+        except (TypeError, ValueError, OverflowError):
             raise ValueError("Price must be a number and quantity must be an integer.") from None
         if not symbol or len(symbol) > 16 or not symbol.isalnum():
             raise ValueError("Symbol must contain 1-16 letters or numbers.")
         if side not in ("BUY", "SELL"):
             raise ValueError("Side must be BUY or SELL.")
-        if price <= 0 or price > 1_000_000_000:
+        if not math.isfinite(price) or price <= 0 or price > 1_000_000_000:
             raise ValueError("Price must be greater than 0 and within the supported limit.")
         if quantity < 1 or quantity > 1_000_000:
             raise ValueError("Quantity must be between 1 and 1,000,000.")
