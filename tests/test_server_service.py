@@ -36,6 +36,8 @@ class ChronosServiceTests(unittest.TestCase):
             {"symbol": "AAPL", "side": "HOLD", "price": 100, "quantity": 1},
             {"symbol": "AAPL", "side": "BUY", "price": -1, "quantity": 1},
             {"symbol": "AAPL", "side": "BUY", "price": 100, "quantity": 0},
+            {"symbol": "AAPL", "side": "BUY", "price": float("nan"), "quantity": 1},
+            {"symbol": "AAPL", "side": "BUY", "price": 100, "quantity": 1.5},
         ]
         for payload in cases:
             with self.subTest(payload=payload):
