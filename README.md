@@ -19,7 +19,7 @@
 - `order.py`, `order_book.py`: order model and in-memory order book.
 - `matching_engine/`: matching engine core and Cython source.
 - `shared_memory/`: order-buffer implementation and experiments.
-- `run_engine.py`: shared-memory streaming-engine runner with per-trade nanosecond telemetry written to `latency_metrics.csv`.
+- `run_engine.py`: shared-memory streaming-engine runner with a background SQLite writer and per-trade nanosecond telemetry written to `latency_metrics.csv`.
 - `market_sim/simulator.py`, `run_market_simulator.py`: asynchronous synthetic market firehose (best-effort target rate with ring-buffer back-pressure).
 - `audit_ipc_million.py`: multi-process FIFO integrity/stress audit; default target is 1,000,000 orders.
 - `report_latency.py`: p50/p95/p99 summary for recorded trade latency samples.
