@@ -2,6 +2,7 @@
 from importlib import import_module
 from importlib.machinery import EXTENSION_SUFFIXES
 from pathlib import Path
+import csv
 import threading
 import time
 
@@ -42,6 +43,15 @@ def main():
     buffer = SharedMemoryBuffer()
     ledger = TradeLedger()
     shutdown = [False]
+    metrics_path = project_root / "latency_metrics.csv"
+    metrics_file = metrics_path.open("a", newline="", encoding="utf-8")
+    metrics_writer = csv.DictWriter(metrics_file, fieldnames=["timestamp_ns", "buy_order_id", "sell_order_id", "price", "quantity", "latency_ns"])
+    if metrics_path.stat().st_size == 0:
+        metrics_writer.writeheader()
+
+    def record_metrics(row):
+        metrics_writer.writerow(row)
+        metrics_file.flush()
 
     def save_trade(buy_id, sell_id, price, quantity):
         ledger.record_trade(
@@ -55,6 +65,7 @@ def main():
     engine_thread = threading.Thread(
         target=match_order_stream,
         args=(buffer, shutdown, save_trade),
+        kwargs={"metrics_callback": record_metrics},
         daemon=True
     )
 
@@ -72,7 +83,8 @@ def main():
         shutdown[0] = True
         engine_thread.join(timeout=2)
         buffer.close()
-        print("Engine stopped.")
+        metrics_file.close()
+        print(f"Engine stopped. Trade latency metrics: {metrics_path}")
 
 
 if __name__ == "__main__":
