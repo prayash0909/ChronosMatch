@@ -3,6 +3,7 @@ from importlib import import_module
 from importlib.machinery import EXTENSION_SUFFIXES
 from pathlib import Path
 import csv
+import queue
 import threading
 import time
 
@@ -53,14 +54,32 @@ def main():
         metrics_writer.writerow(row)
         metrics_file.flush()
 
+    trade_queue = queue.Queue()
+    stop_worker = object()
+
+    def persist_trades():
+        while True:
+            item = trade_queue.get()
+            try:
+                if item is stop_worker:
+                    return
+                buy_id, sell_id, price, quantity = item
+                ledger.record_trade(
+                    buy_order_id=buy_id,
+                    sell_order_id=sell_id,
+                    price=price,
+                    quantity=quantity
+                )
+            except Exception as exc:
+                print(f"[LEDGER ERROR] {exc}")
+            finally:
+                trade_queue.task_done()
+
+    ledger_thread = threading.Thread(target=persist_trades, name="trade-ledger-writer", daemon=True)
+
     def save_trade(buy_id, sell_id, price, quantity):
-        ledger.record_trade(
-            buy_order_id=buy_id,
-            sell_order_id=sell_id,
-            price=price,
-            quantity=quantity
-        )
-        print("Trade saved to SQLite database.")
+        # Keep SQLite I/O off the matching thread; the worker persists in FIFO order.
+        trade_queue.put((buy_id, sell_id, price, quantity))
 
     engine_thread = threading.Thread(
         target=match_order_stream,
@@ -70,8 +89,9 @@ def main():
     )
 
     try:
+        ledger_thread.start()
         engine_thread.start()
-        print("Engine is running. Press Ctrl+C to stop.")
+        print("Engine is running with background SQLite ledger writer. Press Ctrl+C to stop.")
 
         while True:
             time.sleep(1)
@@ -82,6 +102,9 @@ def main():
     finally:
         shutdown[0] = True
         engine_thread.join(timeout=2)
+        trade_queue.join()
+        trade_queue.put(stop_worker)
+        ledger_thread.join(timeout=5)
         buffer.close()
         metrics_file.close()
         print(f"Engine stopped. Trade latency metrics: {metrics_path}")
