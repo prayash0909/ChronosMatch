@@ -245,7 +245,8 @@
     e.preventDefault();
     const side=$('side').value, symbol=$('symbol').value, price=Number($('price').value), qty=Number($('quantity').value);
     if(!Number.isFinite(price)||price<=0||!Number.isInteger(qty)||qty<1){notify('Enter a valid price and whole-number quantity.');return;}
-    if(apiAvailable){try{const response=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({symbol,side,price,quantity:qty})});const data=await response.json();if(!response.ok)throw new Error(data.error||'Order rejected');applyApiState(data.state);notify('Python engine accepted order '+data.order.order_id+'; '+(data.new_trades||[]).length+' trade(s) matched.');}catch(error){notify('Order submission failed: '+error.message);}return;}\n    sequence++;orderCount++;$('ordersMetric').textContent=orderCount.toLocaleString();
+    if(apiAvailable){try{const response=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({symbol,side,price,quantity:qty})});const data=await response.json();if(!response.ok)throw new Error(data.error||'Order rejected');applyApiState(data.state);notify('Python engine accepted order '+data.order.order_id+'; '+(data.new_trades||[]).length+' trade(s) matched.');}catch(error){notify('Order submission failed: '+error.message);}return;}
+    sequence++;orderCount++;$('ordersMetric').textContent=orderCount.toLocaleString();
     const ownBook=side==='BUY'?bids:asks, opposite=side==='BUY'?asks:bids;
     opposite.sort((a,b)=>side==='BUY'?a.p-b.p:b.p-a.p);
     let remaining=qty, filled=0, newTrades=0;
