@@ -22,9 +22,9 @@ PORT = 8000
 
 
 class ChronosService:
-    def __init__(self) -> None:
+    def __init__(self, db_path: Path = DB_PATH) -> None:
         self.lock = threading.RLock()
-        self.ledger = TradeLedger(DB_PATH)
+        self.ledger = TradeLedger(db_path)
         self.engine = MatchingEngine(ledger=self.ledger)
         self.next_id = 1
         self.started_at_orders = 0
@@ -176,7 +176,7 @@ class Handler(SimpleHTTPRequestHandler):
 def main() -> None:
     server = ThreadingHTTPServer((HOST, PORT), Handler)
     print(f"ChronosMatch dashboard/API: http://{HOST}:{PORT}/ui/")
-    print("API health check: http://{HOST}:{PORT}/api/health")
+    print(f"API health check: http://{HOST}:{PORT}/api/health")
     print("Local prototype only; no broker/live-exchange connection.")
     try:
         server.serve_forever()
