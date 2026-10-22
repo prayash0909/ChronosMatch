@@ -219,7 +219,7 @@
     notify('Demo counters and book reset.');
   });
   $('orderForm').addEventListener('reset', () => setTimeout(()=>notify('Order form reset.'),0));
-  $('orderForm').addEventListener('submit',e=>{
+  $('orderForm').addEventListener('submit',async e=>{
     e.preventDefault();
     const side=$('side').value, symbol=$('symbol').value, price=Number($('price').value), qty=Number($('quantity').value);
     if(!Number.isFinite(price)||price<=0||!Number.isInteger(qty)||qty<1){notify('Enter a valid price and whole-number quantity.');return;}
@@ -247,6 +247,7 @@
     notify(filled>0?('Demo matched '+filled+' '+symbol+' shares; '+remaining+' remaining.'):('Demo '+side+' order added to '+symbol+' book.'));
   });
   renderBook('asks',asks,'sell');renderBook('bids',bids,'buy');renderTrades();
+  connectApi();
 })();
 </script>
 </body>
