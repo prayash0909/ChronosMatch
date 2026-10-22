@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1020">
+<title>ChronosMatch | Trading Engine Monitor</title>
+<style>
+:root{color-scheme:dark;--bg:#080c17;--panel:#101728;--panel2:#0d1423;--line:#202b40;--muted:#8794ad;--text:#e8eef9;--green:#39d6a1;--red:#ff6b7a;--blue:#7b9cff;--amber:#f4c36a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 10% -20%,#17264a 0,transparent 40%),var(--bg);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}button,input,select{font:inherit}button{cursor:pointer}.app{min-height:100vh;display:grid;grid-template-columns:220px minmax(0,1fr)}aside{border-right:1px solid var(--line);padding:25px 16px;background:#0a1020cc}.brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:17px;letter-spacing:-.4px;padding:0 8px 30px}.logo{width:36px;height:36px;display:grid;place-items:center;border-radius:11px;background:linear-gradient(135deg,#6f8cff,#43d9c1);color:#09101b;font-weight:900;font-size:18px}.brand small{display:block;color:var(--muted);font-size:10px;font-weight:500;letter-spacing:1.7px;margin-top:2px}.nav-label{color:#64728b;font-size:10px;font-weight:800;letter-spacing:1.7px;padding:8px 11px}.nav{display:flex;align-items:center;gap:12px;padding:11px 12px;color:#a8b4c9;border-radius:9px;margin:4px 0}.nav.active{color:#eaf0ff;background:#1c2a48;border:1px solid #2b3c60}.nav .ico{width:18px;text-align:center;color:#93a9d9}.aside-bottom{position:sticky;top:calc(100vh - 140px);margin-top:90px;padding:14px;border:1px solid var(--line);background:var(--panel2);border-radius:12px}.aside-bottom strong{display:block;font-size:12px}.aside-bottom p{color:var(--muted);font-size:11px;margin:7px 0 0}.main{padding:28px clamp(16px,3vw,38px);min-width:0;max-width:1600px;width:100%;margin:auto}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:26px}.eyebrow{font-size:10px;letter-spacing:2px;color:var(--blue);font-weight:800}.h1{font-size:26px;letter-spacing:-.8px;margin:5px 0 0}.sub{color:var(--muted);margin:5px 0 0;font-size:12px}.top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.pill{border:1px solid var(--line);border-radius:999px;padding:8px 12px;color:#b7c4d9;font-size:11px;display:flex;align-items:center;gap:8px;background:#101727}.dot{width:7px;height:7px;background:var(--amber);border-radius:50%;box-shadow:0 0 12px #f4c36a66}.button{border:1px solid #3a4d72;border-radius:9px;padding:9px 13px;color:#eaf0ff;background:#1a2946;font-weight:700;font-size:12px}.button.primary{background:#b7c9ff;color:#0b1222;border-color:#b7c9ff}.button:hover{filter:brightness(1.12)}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:16px}.card{background:linear-gradient(145deg,#121b2e,#0e1524);border:1px solid var(--line);border-radius:14px;padding:17px;min-width:0;box-shadow:0 10px 30px #00000012}.metric-top{display:flex;align-items:center;justify-content:space-between;color:#9aa8bf;font-size:11px}.metric-icon{width:29px;height:29px;display:grid;place-items:center;background:#1b2942;border-radius:9px;color:#a9bcff}.value{font-size:26px;font-weight:750;letter-spacing:-.8px;margin:13px 0 4px}.trend{font-size:11px;color:var(--green)}.muted{color:var(--muted)}.layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.9fr);gap:15px;margin-bottom:15px}.card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:17px}.card-title{font-size:13px;font-weight:750}.card-sub{font-size:10px;color:var(--muted);margin-top:3px}.tag{font-size:10px;color:#9eb0d3;border:1px solid #2a3852;background:#131e32;padding:5px 8px;border-radius:7px}.symbol{font-weight:800;letter-spacing:.3px}.symbol small{color:var(--muted);font-weight:500}.book-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.book-title{font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:10px}.book-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;position:relative;padding:7px 5px;font-size:11px;font-variant-numeric:tabular-nums}.book-row span:last-child{text-align:right}.book-row span:nth-child(2){text-align:center}.book-row .depth{position:absolute;inset:2px 0 2px auto;width:35%;z-index:0;opacity:.12;border-radius:3px}.book-row span{position:relative;z-index:1}.sell{color:var(--red)}.buy{color:var(--green)}.book-labels{display:grid;grid-template-columns:1fr 1fr 1fr;color:#71809a;font-size:9px;padding:0 5px 6px;border-bottom:1px solid var(--line)}.book-labels span:nth-child(2){text-align:center}.book-labels span:last-child{text-align:right}.spread{margin:13px 0;background:#0b1220;border:1px solid var(--line);padding:10px;text-align:center;border-radius:8px;color:#aab8d0;font-size:11px}.spread strong{color:var(--text)}.chart-wrap{height:175px;position:relative}.chart-wrap svg{width:100%;height:100%;overflow:visible}.chart-grid{stroke:#26334b;stroke-dasharray:4 5;stroke-width:1}.chart-label{fill:#71809a;font-size:9px}.chart-line{fill:none;stroke:#87a2ff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}.chart-area{fill:url(#area)}.legend{display:flex;gap:14px;color:var(--muted);font-size:10px}.legend span{display:flex;align-items:center;gap:6px}.legend i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--blue)}.trade-table{width:100%;border-collapse:collapse;font-size:11px}.trade-table th{color:#74839c;text-align:left;font-weight:600;font-size:9px;letter-spacing:.8px;padding:9px 7px;border-bottom:1px solid var(--line)}.trade-table td{padding:11px 7px;border-bottom:1px solid #1a2537;font-variant-numeric:tabular-nums}.trade-table tr:last-child td{border-bottom:0}.side-chip{font-size:9px;padding:4px 6px;border-radius:5px;background:#15352f;color:var(--green)}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;color:#8f9db5;font-size:10px;margin-bottom:6px}.field input,.field select{width:100%;border:1px solid #2a3850;background:#0b1220;color:var(--text);padding:10px;border-radius:8px;outline:none}.field input:focus,.field select:focus{border-color:#819cff}.form-footer{display:flex;gap:9px;margin-top:14px}.form-footer button{flex:1}.notice{margin-top:14px;border:1px solid #5a4828;background:#2b2417;color:#f2cd86;border-radius:9px;padding:10px 12px;font-size:10px;display:flex;gap:8px;align-items:flex-start}.footer{display:flex;justify-content:space-between;gap:12px;color:#63728a;font-size:10px;padding:14px 2px 3px}.empty{text-align:center;color:var(--muted);padding:22px 8px;font-size:11px}.toast{position:fixed;right:22px;bottom:22px;padding:12px 16px;background:#172b2b;border:1px solid #2d6b5d;color:#b9ffe7;border-radius:10px;box-shadow:0 12px 40px #0008;display:none;z-index:10}.status-live{color:var(--green)}@media(max-width:1050px){.app{grid-template-columns:75px minmax(0,1fr)}aside{padding:22px 9px}.brand{justify-content:center;padding:0 0 25px}.brand-text,.nav-label,.nav span:not(.ico),.aside-bottom{display:none}.nav{justify-content:center;padding:13px 6px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.layout{grid-template-columns:1fr}.topbar{align-items:flex-start;flex-direction:column}.metrics{gap:9px}.value{font-size:22px}.main{padding:20px 12px}.book-grid{gap:8px}.card{padding:13px}.trade-table{font-size:10px}.trade-table th,.trade-table td{padding:9px 4px}}@media(max-width:420px){.metrics{grid-template-columns:1fr 1fr}.pill{font-size:10px}.h1{font-size:22px}.book-row{font-size:10px}.form-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+  <div class="brand"><div class="logo">C</div><div class="brand-text">ChronosMatch<small>ENGINE CONSOLE</small></div></div>
+  <div class="nav-label">WORKSPACE</div>
+  <div class="nav active"><span class="ico">▦</span><span>Overview</span></div>
+  <div class="nav"><span class="ico">⇄</span><span>Order Book</span></div>
+  <div class="nav"><span class="ico">⌁</span><span>Trade History</span></div>
+  <div class="nav"><span class="ico">◷</span><span>Performance</span></div>
+  <div class="nav-label" style="margin-top:22px">SYSTEM</div>
+  <div class="nav"><span class="ico">⚙</span><span>Engine Settings</span></div>
+  <div class="aside-bottom"><strong>Prototype environment</strong><p>UI demo with local simulated orders. No live market connection.</p></div>
+</aside>
+<main class="main">
+  <header class="topbar">
+    <div><div class="eyebrow">MATCHING ENGINE / OVERVIEW</div><h1 class="h1">Engine dashboard</h1><p class="sub">Monitor order flow, matching activity and runtime metrics.</p></div>
+    <div class="top-actions"><div class="pill"><span class="dot" id="statusDot"></span><span id="engineStatus">SIMULATION PAUSED</span></div><button class="button primary" id="toggleEngine">▶ Start simulation</button></div>
+  </header>
+  <section class="metrics">
+    <article class="card"><div class="metric-top">Orders processed <span class="metric-icon">⇄</span></div><div class="value" id="ordersMetric">1,284</div><div class="trend">↗ Demo counter</div></article>
+    <article class="card"><div class="metric-top">Trades matched <span class="metric-icon">⌁</span></div><div class="value" id="tradesMetric">426</div><div class="trend" id="tradeTrend">Matching activity</div></article>
+    <article class="card"><div class="metric-top">Throughput <span class="metric-icon">ϟ</span></div><div class="value" id="throughputMetric">18.4k <span style="font-size:12px;color:#9aa8bf">/ sec</span></div><div class="muted" style="font-size:10px">Reference benchmark · not live</div></article>
+    <article class="card"><div class="metric-top">Median latency <span class="metric-icon">◷</span></div><div class="value" id="latencyMetric">11.1 <span style="font-size:12px;color:#9aa8bf">ms</span></div><div class="muted" style="font-size:10px">Reference benchmark · not live</div></article>
+  </section>
+  <section class="layout">
+    <article class="card">
+      <div class="card-head"><div><div class="card-title">Order book <span class="muted">/</span> <span class="symbol">AAPL <small>Apple Inc.</small></span></div><div class="card-sub">Price levels and displayed quantity</div></div><span class="tag">USD</span></div>
+      <div class="book-grid">
+        <div><div class="book-title sell">ASKS · SELL</div><div class="book-labels"><span>PRICE</span><span>ORDERS</span><span>QTY</span></div><div id="asks"></div></div>
+        <div><div class="book-title buy">BIDS · BUY</div><div class="book-labels"><span>PRICE</span><span>ORDERS</span><span>QTY</span></div><div id="bids"></div></div>
+      </div>
+      <div class="spread">Spread <strong id="spreadValue">$0.05</strong> <span class="muted"> · midpoint </span><strong id="midValue">$100.03</strong></div>
+    </article>
+    <article class="card">
+      <div class="card-head"><div><div class="card-title">Engine activity</div><div class="card-sub">Illustrative activity trace</div></div><div class="legend"><span><i></i>Orders / tick</span></div></div>
+      <div class="chart-wrap"><svg viewBox="0 0 500 190" preserveAspectRatio="none" aria-label="Illustrative order activity chart"><defs><linearGradient id="area" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#819cff" stop-opacity=".27"/><stop offset="1" stop-color="#819cff" stop-opacity="0"/></linearGradient></defs><path class="chart-grid" d="M35 25H490 M35 65H490 M35 105H490 M35 145H490"/><text class="chart-label" x="3" y="28">400</text><text class="chart-label" x="3" y="68">300</text><text class="chart-label" x="3" y="108">200</text><text class="chart-label" x="3" y="148">100</text><path id="chartArea" class="chart-area" d="M35 145 L75 110 L115 126 L155 75 L195 91 L235 54 L275 88 L315 45 L355 70 L395 34 L435 58 L490 25 L490 165 L35 165Z"/><path id="chartLine" class="chart-line" d="M35 145 L75 110 L115 126 L155 75 L195 91 L235 54 L275 88 L315 45 L355 70 L395 34 L435 58 L490 25"/><text class="chart-label" x="35" y="184">-60s</text><text class="chart-label" x="245" y="184">-30s</text><text class="chart-label" x="465" y="184">Now</text></svg></div>
+      <div class="footer"><span>Illustrative visualization</span><span id="chartState">Waiting for simulation</span></div>
+    </article>
+  </section>
+  <section class="layout">
+    <article class="card">
+      <div class="card-head"><div><div class="card-title">Recent trades</div><div class="card-sub">Latest matched orders in this browser demo</div></div><span class="tag" id="tradeCountTag">3 trades</span></div>
+      <div style="overflow-x:auto"><table class="trade-table"><thead><tr><th>TIME</th><th>BUY ORDER</th><th>SELL ORDER</th><th>PRICE</th><th>QTY</th></tr></thead><tbody id="tradesBody"></tbody></table></div>
+      <div id="tradesEmpty" class="empty" hidden>No simulated trades yet. Submit crossing orders to create a match.</div>
+    </article>
+    <article class="card">
+      <div class="card-head"><div><div class="card-title">Submit test order</div><div class="card-sub">Send an order to the local UI simulation</div></div><span class="tag">DEMO</span></div>
+      <form id="orderForm">
+        <div class="form-grid">
+          <div class="field"><label for="symbol">SYMBOL</label><select id="symbol"><option>AAPL</option><option>MSFT</option><option>GOOGL</option><option>NVDA</option></select></div>
+          <div class="field"><label for="side">SIDE</label><select id="side"><option value="BUY">BUY</option><option value="SELL">SELL</option></select></div>
+          <div class="field"><label for="price">LIMIT PRICE ($)</label><input id="price" type="number" min=".01" step=".01" value="100.05" required></div>
+          <div class="field"><label for="quantity">QUANTITY</label><input id="quantity" type="number" min="1" max="1000000" step="1" value="5" required></div>
+        </div>
+        <div class="form-footer"><button type="reset" class="button">Reset</button><button type="submit" class="button primary">＋ Submit demo order</button></div>
+      </form>
+      <div class="notice"><span>⚠</span><span><strong>Simulation only.</strong> Orders are matched in this browser page. This form is not connected to the Python/Cython engine, a broker, or a live exchange.</span></div>
+    </article>
+  </section>
+  <div class="footer"><span>ChronosMatch · Zero-copy HFT engine prototype</span><span>UI prototype · no live market data</span></div>
+</main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  let running = false, timer = null, orderCount = 1284, tradeCount = 426, sequence = 2000;
+  const trades = [
+    {time:"09:41:08.214",buy:"B-1048",sell:"S-1041",price:100.05,qty:12},
+    {time:"09:41:08.107",buy:"B-1046",sell:"S-1039",price:100.04,qty:8},
+    {time:"09:41:07.982",buy:"B-1044",sell:"S-1038",price:100.02,qty:20}
+  ];
+  const asks = [{p:100.08,n:2,q:45},{p:100.07,n:3,q:32},{p:100.06,n:1,q:18},{p:100.05,n:4,q:26},{p:100.04,n:2,q:14}];
+  const bids = [{p:100.03,n:3,q:21},{p:100.02,n:2,q:38},{p:100.01,n:4,q:41},{p:100.00,n:2,q:19},{p:99.99,n:3,q:52}];
+  function renderBook(id, rows, side) {
+    const max = Math.max(...rows.map(r => r.q));
+    $(id).innerHTML = rows.map(r => '<div class="book-row"><div class="depth" style="width:'+(r.q/max*80)+'%;background:var(--'+(side==='buy'?'green':'red')+')"></div><span class="'+side+'">$'+r.p.toFixed(2)+'</span><span>'+r.n+'</span><span>'+r.q+'</span></div>').join('');
+  }
+  function renderTrades() {
+    $('tradesBody').innerHTML = trades.slice(0,7).map(t => '<tr><td class="muted">'+t.time+'</td><td>'+t.buy+'</td><td>'+t.sell+'</td><td class="buy">$'+t.price.toFixed(2)+'</td><td>'+t.qty+'</td></tr>').join('');
+    $('tradeCountTag').textContent = trades.length+' shown';
+    $('tradesEmpty').hidden = trades.length > 0;
+  }
+  function notify(msg) { const t=$('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2600); }
+  function setRunning(next) {
+    running=next;
+    $('engineStatus').textContent=running?'SIMULATION RUNNING':'SIMULATION PAUSED';
+    $('statusDot').style.background=running?'var(--green)':'var(--amber)';
+    $('toggleEngine').textContent=running?'Ⅱ Pause simulation':'▶ Start simulation';
+    $('chartState').textContent=running?'Updating demo activity':'Waiting for simulation';
+    if(timer) clearInterval(timer);
+    timer=running?setInterval(()=>{orderCount+=Math.floor(Math.random()*8)+1;$('ordersMetric').textContent=orderCount.toLocaleString();$('throughputMetric').innerHTML=(18+Math.random()*1.5).toFixed(1)+'k <span style="font-size:12px;color:#9aa8bf">/ sec</span>'; $('latencyMetric').innerHTML=(9.5+Math.random()*3).toFixed(1)+' <span style="font-size:12px;color:#9aa8bf">ms</span>'; updateChart();},1800):null;
+  }
+  function updateChart() {
+    const vals=Array.from({length:12},()=>30+Math.random()*115);
+    const points=vals.map((v,i)=>(35+i*41.36)+' '+(160-v)).join(' L');
+    $('chartLine').setAttribute('d','M'+points);
+    $('chartArea').setAttribute('d','M'+points+' L490 165 L35 165Z');
+  }
+  $('toggleEngine').addEventListener('click',()=>setRunning(!running));
+  $('orderForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const side=$('side').value, symbol=$('symbol').value, price=Number($('price').value), qty=Number($('quantity').value);
+    if(!Number.isFinite(price)||price<=0||!Number.isInteger(qty)||qty<1){notify('Enter a valid price and whole-number quantity.');return;}
+    sequence++;orderCount++;$('ordersMetric').textContent=orderCount.toLocaleString();
+    const book=side==='BUY'?bids:asks, opposite=side==='BUY'?asks:bids;
+    const cross=side==='BUY'?price>=Math.min(...opposite.map(x=>x.p)):price<=Math.max(...opposite.map(x=>x.p));
+    if(cross) {
+      const level=opposite[side==='BUY'?opposite.length-1:0];
+      const matched=Math.min(qty,level.q);
+      const trade={time:new Date().toLocaleTimeString('en-GB',{hour12:false})+'.demo',buy:side==='BUY'?'B-'+sequence:'B-DEMO',sell:side==='SELL'?'S-'+sequence:'S-DEMO',price:level.p,qty:matched,symbol};
+      trades.unshift(trade);tradeCount++;$('tradesMetric').textContent=tradeCount.toLocaleString();renderTrades();
+      level.q=Math.max(0,level.q-matched);level.n=level.q?level.n:0;
+      renderBook('asks',asks,'sell');renderBook('bids',bids,'buy');
+      notify('Demo match created: '+matched+' '+symbol+' shares at $'+level.p.toFixed(2));
+    } else {
+      book.unshift({p:price,n:1,q:qty});book.sort((a,b)=>side==='BUY'?b.p-a.p:a.p-b.p);book.splice(5);
+      renderBook('asks',asks,'sell');renderBook('bids',bids,'buy');
+      notify(side+' demo order added to '+symbol+' book.');
+    }
+    $('spreadValue').textContent='$'+Math.abs(asks[asks.length-1].p-bids[0].p).toFixed(2);
+    $('midValue').textContent='$'+((asks[asks.length-1].p+bids[0].p)/2).toFixed(2);
+  });
+  renderBook('asks',asks,'sell');renderBook('bids',bids,'buy');renderTrades();
+})();
+</script>
+</body>
+</html>
