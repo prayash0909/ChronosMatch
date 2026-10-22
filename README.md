@@ -38,7 +38,7 @@ From the repository root:
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip setuptools Cython pytest
+python -m pip install --upgrade pip\npython -m pip install -r requirements.txt
 ```
 
 Build the Cython extension:
@@ -53,7 +53,7 @@ Run the automated test suite:
 python -m pytest -q
 ```
 
-The latest recorded local test run completed with **9 passed**. Run the tests again after changing code or setting up a fresh environment; individual test and experiment scripts may also need to be run separately.
+A previous local run completed with **9 passed** before the local API service tests were added. Run the current suite after updating the environment; individual benchmark and experiment scripts may also need to be run separately.
 
 Run the basic matching-engine example:
 
