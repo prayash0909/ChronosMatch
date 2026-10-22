@@ -118,13 +118,36 @@
     $('chartArea').setAttribute('d','M'+points+' L490 165 L35 165Z');
   }
   $('toggleEngine').addEventListener('click',()=>setRunning(!running));
+  const metricsSection = document.querySelector('.metrics');
+  const orderBookCard = $('orderBookSection').querySelector('.card');
+  const tradesSection = $('tradesSection');
+  const orderBookSection = $('orderBookSection');
+  const pageTitle = document.querySelector('.h1');
+  const pageEyebrow = document.querySelector('.eyebrow');
+  const pageSubtitle = document.querySelector('.topbar .sub');
+  const viewCopy = {
+    overview: ['Engine dashboard', 'MATCHING ENGINE / OVERVIEW', 'Monitor order flow, matching activity and runtime metrics.'],
+    orderbook: ['Order Book', 'MATCHING ENGINE / ORDER BOOK', 'View simulated buy and sell limit orders.'],
+    trades: ['Trade History', 'MATCHING ENGINE / TRADE HISTORY', 'Review orders matched in this browser demo.'],
+    performance: ['Performance', 'MATCHING ENGINE / PERFORMANCE', 'Illustrative activity chart; benchmark values are reference-only.'],
+    settings: ['Engine Settings', 'MATCHING ENGINE / SETTINGS', 'Configure the local browser simulation.']
+  };
   document.querySelectorAll('[data-view]').forEach(button => {
     button.addEventListener('click', () => {
       document.querySelectorAll('[data-view]').forEach(item => item.classList.toggle('active', item === button));
       const view = button.dataset.view;
-      const targets = {overview:document.querySelector('.topbar'), orderbook:$('orderBookSection'), trades:$('tradesSection'), performance:$('performanceSection'), settings:$('settingsSection')};
+      const overview = view === 'overview';
+      metricsSection.style.display = overview ? '' : 'none';
+      orderBookSection.style.display = (overview || view === 'orderbook' || view === 'performance') ? 'grid' : 'none';
+      tradesSection.style.display = (overview || view === 'trades') ? 'grid' : 'none';
       $('settingsSection').hidden = view !== 'settings';
-      if (targets[view]) targets[view].scrollIntoView({behavior:'smooth',block:'start'});
+      orderBookCard.style.display = (overview || view === 'orderbook') ? '' : 'none';
+      $('performanceSection').style.display = (overview || view === 'performance') ? '' : 'none';
+      orderBookSection.style.gridTemplateColumns = view === 'orderbook' || view === 'performance' ? 'minmax(0,1fr)' : '';
+      pageTitle.textContent = viewCopy[view][0];
+      pageEyebrow.textContent = viewCopy[view][1];
+      pageSubtitle.textContent = viewCopy[view][2];
+      window.scrollTo({top: 0, behavior: 'smooth'});
       if (view === 'settings') notify('Simulation settings opened.');
     });
   });
