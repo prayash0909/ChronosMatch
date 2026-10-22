@@ -5,6 +5,7 @@ This is a correctness/stress audit, not a claim that one million orders/s is rea
 """
 import argparse
 import multiprocessing as mp
+import queue
 import time
 import uuid
 
@@ -90,8 +91,11 @@ def main():
     owner.close()
 
     results = []
-    while not result.empty():
-        results.append(result.get())
+    for _ in range(2):
+        try:
+            results.append(result.get(timeout=2))
+        except queue.Empty:
+            break
     errors = [row for row in results if row[2] is not None]
     counts = {row[0]: row[1] for row in results}
     print(f"IPC audit requested={args.orders:,} elapsed={elapsed:.3f}s")
