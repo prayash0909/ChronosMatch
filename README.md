@@ -69,17 +69,24 @@ python run_engine.py
 
 Check each script's source and expected inputs before running it. Some helpers use a local SQLite database; local database files are intentionally excluded from Git.
 
-## Open the UI
+## Run the dashboard with the Python engine
 
-Open `ui/index.html` directly in a modern browser, or serve the repository root locally:
+Install the dependencies and build the optional Cython stream extension as described above. Then start the local API and dashboard server from the repository root:
 
 ```powershell
-python -m http.server 8000
+python server.py
 ```
 
-Then visit `http://localhost:8000/ui/`.
+Open `http://127.0.0.1:8000/ui/`. The server binds to loopback only. The dashboard uses the Python `MatchingEngine` for submitted orders and reads the current in-memory order book plus recent SQLite ledger entries from the local API. Use Ctrl+C in the terminal to stop the server.
 
-The dashboard currently contains **demo-only** order-book values, reference metrics, and a browser-local simulated order form. It is **not connected** to the Python/Cython matching engine, SQLite ledger, broker, or live market data. Its counters and chart are illustrative, not live performance measurements.
+API endpoints:
+- `GET /api/health` — local server health.
+- `GET /api/state` — current order book, counters, recent persisted trades, and analytics.
+- `POST /api/orders` — submit a validated limit order, with JSON fields `symbol`, `side`, `price`, and `quantity`.
+- `POST /api/engine` — update the dashboard's running/paused status (this is a UI status flag, not a separate matching thread).
+- `POST /api/reset` — clear the in-memory order book and counters; the saved SQLite trade ledger is retained.
+
+You can still open `ui/index.html` directly for its standalone browser demo, but direct file mode cannot call the local Python API. The local server is a development integration only: it does not connect to a broker or live exchange, and it is not hardened for public network exposure. The Cython shared-buffer runner (`python run_engine.py`) is a separate experimental path from the HTTP API.
 
 ## Benchmark notes
 
