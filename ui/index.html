@@ -81,7 +81,7 @@
 <script>
 (() => {
   const $ = id => document.getElementById(id);
-  let running = false, timer = null, orderCount = 1284, tradeCount = 426, sequence = 2000, refreshRate = 1800;
+  let running = false, timer = null, orderCount = 1284, tradeCount = 426, sequence = 2000, refreshRate = 1800, apiAvailable = false;
   const trades = [
     {time:"09:41:08.214",buy:"B-1048",sell:"S-1041",price:100.05,qty:12},
     {time:"09:41:08.107",buy:"B-1046",sell:"S-1039",price:100.04,qty:8},
@@ -95,6 +95,56 @@
     if (!visible.length) { $(id).innerHTML = '<div class="empty">No orders at this side</div>'; return; }
     const max = Math.max(...visible.map(r => r.q));
     $(id).innerHTML = visible.map(r => '<div class="book-row"><div class="depth" style="width:'+(r.q/max*80)+'%;background:var(--'+(side==='buy'?'green':'red')+')"></div><span class="'+side+'">$'+r.p.toFixed(2)+'</span><span>'+r.n+'</span><span>'+r.q+'</span></div>').join('');
+  }
+  function applyApiState(state) {
+    orderCount = Number(state.orders_processed || 0);
+    tradeCount = Number(state.trades_matched || 0);
+    $('ordersMetric').textContent = orderCount.toLocaleString();
+    $('tradesMetric').textContent = tradeCount.toLocaleString();
+    const aggregate = rows => {
+      const levels = new Map();
+      rows.forEach(o => {
+        const key = Number(o.price).toFixed(2);
+        const item = levels.get(key) || {p:Number(key),n:0,q:0};
+        item.n += 1;
+        item.q += Number(o.remaining_quantity || o.quantity || 0);
+        levels.set(key,item);
+      });
+      return [...levels.values()];
+    };
+    asks.splice(0,asks.length,...aggregate(state.order_book?.asks || []));
+    bids.splice(0,bids.length,...aggregate(state.order_book?.bids || []));
+    trades.splice(0,trades.length,...(state.trades || []).map(t => ({
+      time: String(t.timestamp || '').replace('T',' ').slice(0,19) || 'recent',
+      buy: String(t.buy_order_id), sell: String(t.sell_order_id),
+      price: Number(t.price), qty: Number(t.quantity)
+    })));
+    renderBook('asks',asks,'sell');
+    renderBook('bids',bids,'buy');
+    renderTrades();
+    const bestAsk = asks.length ? Math.min(...asks.map(x=>x.p)) : NaN;
+    const bestBid = bids.length ? Math.max(...bids.map(x=>x.p)) : NaN;
+    $('spreadValue').textContent = Number.isFinite(bestAsk)&&Number.isFinite(bestBid) ? '$'+Math.max(0,bestAsk-bestBid).toFixed(2) : '—';
+    $('midValue').textContent = Number.isFinite(bestAsk)&&Number.isFinite(bestBid) ? '$'+((bestAsk+bestBid)/2).toFixed(2) : '—';
+    $('tradeCountTag').textContent = (state.trades || []).length+' saved';
+    if (state.running !== undefined && state.running !== running) setRunning(Boolean(state.running));
+  }
+  async function connectApi() {
+    if (!/^https?:$/.test(location.protocol)) return;
+    try {
+      const response = await fetch('/api/state',{cache:'no-store'});
+      if (!response.ok) return;
+      const state = await response.json();
+      if (!state.ok) return;
+      apiAvailable = true;
+      $('chartState').textContent = 'Connected to local Python API';
+      applyApiState(state);
+      $('throughputMetric').innerHTML = 'API <span style="font-size:12px;color:#9aa8bf">connected</span>';
+      $('latencyMetric').innerHTML = '— <span style="font-size:12px;color:#9aa8bf">not measured</span>';
+    } catch (error) {
+      apiAvailable = false;
+      $('chartState').textContent = 'Python API unavailable; demo mode';
+    }
   }
   function renderTrades() {
     $('tradesBody').innerHTML = trades.slice(0,7).map(t => '<tr><td class="muted">'+t.time+'</td><td>'+t.buy+'</td><td>'+t.sell+'</td><td class="buy">$'+t.price.toFixed(2)+'</td><td>'+t.qty+'</td></tr>').join('');
@@ -173,7 +223,7 @@
     e.preventDefault();
     const side=$('side').value, symbol=$('symbol').value, price=Number($('price').value), qty=Number($('quantity').value);
     if(!Number.isFinite(price)||price<=0||!Number.isInteger(qty)||qty<1){notify('Enter a valid price and whole-number quantity.');return;}
-    sequence++;orderCount++;$('ordersMetric').textContent=orderCount.toLocaleString();
+    if(apiAvailable){try{const response=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({symbol,side,price,quantity:qty})});const data=await response.json();if(!response.ok)throw new Error(data.error||'Order rejected');applyApiState(data.state);notify('Python engine accepted order '+data.order.order_id+'; '+(data.new_trades||[]).length+' trade(s) matched.');}catch(error){notify('Order submission failed: '+error.message);}return;}\n    sequence++;orderCount++;$('ordersMetric').textContent=orderCount.toLocaleString();
     const ownBook=side==='BUY'?bids:asks, opposite=side==='BUY'?asks:bids;
     opposite.sort((a,b)=>side==='BUY'?a.p-b.p:b.p-a.p);
     let remaining=qty, filled=0, newTrades=0;
