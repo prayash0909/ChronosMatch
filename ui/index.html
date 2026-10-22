@@ -157,9 +157,31 @@
     $('engineStatus').textContent=running?'SIMULATION RUNNING':'SIMULATION PAUSED';
     $('statusDot').style.background=running?'var(--green)':'var(--amber)';
     $('toggleEngine').textContent=running?'Ⅱ Pause simulation':'▶ Start simulation';
-    $('chartState').textContent=running?'Updating demo activity':'Waiting for simulation';
+    $('chartState').textContent=running?(apiAvailable?'Submitting simulated orders to Python engine':'Updating browser demo'):'Waiting for simulation';
     if(timer) clearInterval(timer);
-    timer=running?setInterval(()=>{orderCount+=Math.floor(Math.random()*8)+1;$('ordersMetric').textContent=orderCount.toLocaleString();$('throughputMetric').innerHTML=(18+Math.random()*1.5).toFixed(1)+'k <span style="font-size:12px;color:#9aa8bf">/ sec</span>'; $('latencyMetric').innerHTML=(9.5+Math.random()*3).toFixed(1)+' <span style="font-size:12px;color:#9aa8bf">ms</span>'; updateChart();},refreshRate):null;
+    timer=running?setInterval(async()=>{
+      if(apiAvailable){
+        try {
+          const side=Math.random()<0.5?'BUY':'SELL';
+          const price=side==='BUY'?100.05:99.95;
+          const quantity=Math.floor(Math.random()*5)+1;
+          const response=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({symbol:'AAPL',side,price,quantity})});
+          const data=await response.json();
+          if(!response.ok) throw new Error(data.error||'Simulation order failed');
+          applyApiState(data.state);
+          $('throughputMetric').innerHTML='Local <span style="font-size:12px;color:#9aa8bf">engine</span>';
+          $('latencyMetric').innerHTML='— <span style="font-size:12px;color:#9aa8bf">not measured</span>';
+        } catch(error) {
+          $('chartState').textContent='API error: '+error.message;
+        }
+      } else {
+        orderCount+=Math.floor(Math.random()*8)+1;
+        $('ordersMetric').textContent=orderCount.toLocaleString();
+        $('throughputMetric').innerHTML=(18+Math.random()*1.5).toFixed(1)+'k <span style="font-size:12px;color:#9aa8bf">/ sec</span>';
+        $('latencyMetric').innerHTML=(9.5+Math.random()*3).toFixed(1)+' <span style="font-size:12px;color:#9aa8bf">ms</span>';
+      }
+      updateChart();
+    },refreshRate):null;
   }
   function updateChart() {
     const vals=Array.from({length:12},()=>30+Math.random()*115);
