@@ -41,3 +41,7 @@ dist/
 
 # Generated benchmark output
 /latency_metrics.csv
+
+# Local code backups
+*.bak
+/shared_memory/*.benchmark_backup
