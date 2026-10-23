@@ -32,3 +32,12 @@ dist/
 # Test and tool caches
 .pytest_cache/
 .mypy_cache/
+
+# Local debugging scripts
+/debug_shared_memory_api.py
+/debug_shared_memory_experiment.py
+/debug_shared_memory_original.py
+/debug_windows_mmap.py
+
+# Generated benchmark output
+/latency_metrics.csv

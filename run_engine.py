@@ -52,7 +52,6 @@ def main():
 
     def record_metrics(row):
         metrics_writer.writerow(row)
-        metrics_file.flush()
 
     trade_queue = queue.Queue()
     stop_worker = object()
