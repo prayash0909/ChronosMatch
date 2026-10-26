@@ -105,8 +105,6 @@ def match_order_stream(
                     "qty": qty,
                     "sequence": sequence
                 }
-                heapq.heappush(sell_orders, (price, sequence, resting)) if False else None
-                # Resting buy orders belong in the buy heap.
                 heapq.heappush(buy_orders, (-price, sequence, resting))
 
         else:
