@@ -8,7 +8,7 @@ from time import time_ns
 class Order:
     order_id: str
     symbol: str
-    side: Literal["BUY", "SELL"]
+    side: Literal["BUY", "SELL", "buy", "sell"]
     price: float
     quantity: int
     timestamp: int = 0
