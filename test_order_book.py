@@ -59,3 +59,18 @@ def test_invalid_order_side_raises_error():
 
     with pytest.raises(ValueError, match="Side must be BUY or SELL"):
         Order("X1", "AAPL", invalid_side, 100, 1)  # type: ignore[arg-type]
+
+
+def test_best_opposite_returns_none_when_no_candidate_exists():
+    book = OrderBook()
+    book.add_order(Order("S1", "AAPL", "SELL", 101, 5))
+
+    assert book.best_opposite("AAPL", "SELL") is None
+    assert book.best_opposite("MSFT", "BUY") is None
+
+
+def test_best_opposite_rejects_invalid_side():
+    book = OrderBook()
+
+    with pytest.raises(ValueError, match="Side must be BUY or SELL"):
+        book.best_opposite("AAPL", "HOLD")  # type: ignore[arg-type]
