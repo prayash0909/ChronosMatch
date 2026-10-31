@@ -74,3 +74,29 @@ def test_best_opposite_rejects_invalid_side():
 
     with pytest.raises(ValueError, match="Side must be BUY or SELL"):
         book.best_opposite("AAPL", "HOLD")  # type: ignore[arg-type]
+def test_sell_orders_follow_fifo_at_same_price():
+    book = OrderBook()
+
+    first = Order("S1", "AAPL", "SELL", 100, 5, timestamp=100)
+    second = Order("S2", "AAPL", "SELL", 100, 5, timestamp=200)
+
+    book.add_order(first)
+    book.add_order(second)
+
+    best = book.best_opposite("AAPL", "BUY")
+
+    assert best is first
+
+
+def test_buy_orders_follow_fifo_at_same_price():
+    book = OrderBook()
+
+    first = Order("B1", "AAPL", "BUY", 100, 5, timestamp=100)
+    second = Order("B2", "AAPL", "BUY", 100, 5, timestamp=200)
+
+    book.add_order(first)
+    book.add_order(second)
+
+    best = book.best_opposite("AAPL", "SELL")
+
+    assert best is first
