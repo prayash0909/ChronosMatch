@@ -1,4 +1,5 @@
 
+from math import isfinite
 from dataclasses import dataclass, field
 from typing import Literal
 from time import time_ns
@@ -30,8 +31,8 @@ class Order:
         else:
             raise ValueError("Side must be BUY or SELL")
 
-        if self.price <= 0:
-            raise ValueError("Price must be positive")
+        if not isfinite(self.price) or self.price <= 0:
+           raise ValueError("Price must be a finite positive number")
 
         if self.quantity <= 0:
             raise ValueError("Quantity must be positive")

@@ -72,3 +72,23 @@ def test_side_is_normalized_to_uppercase():
         quantity=5,
     )
     assert order.side == "BUY"
+@pytest.mark.parametrize(
+    "invalid_price",
+    [
+        float("nan"),
+        float("inf"),
+        float("-inf"),
+    ],
+)
+def test_non_finite_prices_are_rejected(invalid_price):
+    with pytest.raises(
+        ValueError,
+        match="Price must be a finite positive number",
+    ):
+        Order(
+            order_id="T010",
+            symbol="AAPL",
+            side="BUY",
+            price=invalid_price,
+            quantity=5,
+        )
