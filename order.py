@@ -34,8 +34,12 @@ class Order:
         if not isfinite(self.price) or self.price <= 0:
            raise ValueError("Price must be a finite positive number")
 
-        if self.quantity <= 0:
-            raise ValueError("Quantity must be positive")
+        if (
+          isinstance(self.quantity, bool)
+          or not isinstance(self.quantity, int)
+          or self.quantity <= 0
+        ):
+            raise ValueError("Quantity must be a positive integer")
 
         if self.timestamp == 0:
             self.timestamp = time_ns()

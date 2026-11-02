@@ -92,3 +92,25 @@ def test_non_finite_prices_are_rejected(invalid_price):
             price=invalid_price,
             quantity=5,
         )
+@pytest.mark.parametrize(
+    "invalid_quantity",
+    [
+        2.5,
+        1.7,
+        True,
+        False,
+        "5",
+    ],
+)
+def test_non_integer_quantities_are_rejected(invalid_quantity):
+    with pytest.raises(
+        ValueError,
+        match="Quantity must be a positive integer",
+    ):
+        Order(
+            order_id="T011",
+            symbol="AAPL",
+            side="BUY",
+            price=100,
+            quantity=invalid_quantity,
+        )
