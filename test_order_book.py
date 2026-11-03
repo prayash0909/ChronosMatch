@@ -100,3 +100,34 @@ def test_buy_orders_follow_fifo_at_same_price():
     best = book.best_opposite("AAPL", "SELL")
 
     assert best is first
+
+def test_cancel_buy_order_by_id():
+    book = OrderBook()
+    order = Order("B10", "AAPL", "BUY", 100, 5)
+
+    book.add_order(order)
+
+    result = book.cancel_order("B10")
+
+    assert result is True
+    assert order not in book.buy_orders
+
+
+def test_cancel_sell_order_by_id():
+    book = OrderBook()
+    order = Order("S10", "AAPL", "SELL", 100, 5)
+
+    book.add_order(order)
+
+    result = book.cancel_order("S10")
+
+    assert result is True
+    assert order not in book.sell_orders
+
+
+def test_cancel_nonexistent_order_returns_false():
+    book = OrderBook()
+
+    result = book.cancel_order("UNKNOWN")
+
+    assert result is False

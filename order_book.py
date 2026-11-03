@@ -56,3 +56,12 @@ class OrderBook:
 
         if order in orders:
             orders.remove(order)
+
+    def cancel_order(self, order_id):
+        for orders in (self.buy_orders, self.sell_orders):
+            for order in orders:
+                if order.order_id == order_id:
+                    orders.remove(order)
+                    return True
+
+        return False
