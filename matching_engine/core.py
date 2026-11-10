@@ -1,18 +1,21 @@
-from order_book import OrderBook
+
+from order_book import MultiSymbolOrderBook
 from ui_persistence.ledger import TradeLedger
 
 
 class MatchingEngine:
     def __init__(self, ledger=None):
-        self.order_book = OrderBook()
+        self.order_book = MultiSymbolOrderBook()
+        self.order_books = self.order_book.books
         self.trades = []
         self.ledger = ledger or TradeLedger()
 
     def submit_order(self, order):
         new_trades = []
+        symbol_book = self.order_book.get_book(order.symbol)
 
         while order.remaining_quantity > 0:
-            opposite = self.order_book.best_opposite(
+            opposite = symbol_book.best_opposite(
                 order.symbol, order.side
             )
 
@@ -60,9 +63,9 @@ class MatchingEngine:
             new_trades.append(trade)
 
             if opposite.is_filled:
-                self.order_book.remove_order(opposite)
+                symbol_book.remove_order(opposite)
 
         if order.remaining_quantity > 0:
-            self.order_book.add_order(order)
+            symbol_book.add_order(order)
 
         return new_trades
