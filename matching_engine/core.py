@@ -69,3 +69,12 @@ class MatchingEngine:
             symbol_book.add_order(order)
 
         return new_trades
+
+    def cancel_order(self, order_id, symbol=None):
+        """
+        Cancel a pending order by ID.
+
+        If symbol is provided, search only that symbol's order book.
+        Otherwise, search across all symbol order books.
+        """
+        return self.order_book.cancel_order(order_id, symbol)
