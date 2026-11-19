@@ -31,8 +31,8 @@
   <section class="metrics">
     <article class="card"><div class="metric-top">Orders processed <span class="metric-icon">⇄</span></div><div class="value" id="ordersMetric">1,284</div><div class="trend">↗ Demo counter</div></article>
     <article class="card"><div class="metric-top">Trades matched <span class="metric-icon">⌁</span></div><div class="value" id="tradesMetric">426</div><div class="trend" id="tradeTrend">Matching activity</div></article>
-    <article class="card"><div class="metric-top">Throughput <span class="metric-icon">ϟ</span></div><div class="value" id="throughputMetric">18.4k <span style="font-size:12px;color:#9aa8bf">/ sec</span></div><div class="muted" style="font-size:10px">Reference benchmark · not live</div></article>
-    <article class="card"><div class="metric-top">Median latency <span class="metric-icon">◷</span></div><div class="value" id="latencyMetric">11.1 <span style="font-size:12px;color:#9aa8bf">ms</span></div><div class="muted" style="font-size:10px">Reference benchmark · not live</div></article>
+    <article class="card"><div class="metric-top">Throughput <span class="metric-icon">ϟ</span></div><div class="value" id="throughputMetric">18.4k <span style="font-size:12px;color:#9aa8bf">/ sec</span></div><div class="muted" id="throughputCaption" style="font-size:10px">Demo reference - not live</div></article>
+    <article class="card"><div class="metric-top">Average latency <span class="metric-icon">◷</span></div><div class="value" id="latencyMetric">11.1 <span style="font-size:12px;color:#9aa8bf">ms</span></div><div class="muted" id="latencyCaption" style="font-size:10px">Demo reference - not live</div></article>
   </section>
   <section class="layout" id="orderBookSection">
     <article class="card">
@@ -99,6 +99,17 @@
   function applyApiState(state) {
     orderCount = Number(state.orders_processed || 0);
     tradeCount = Number(state.trades_matched || 0);
+    const performance = state.performance || {};
+    const throughput = Number(performance.throughput_ops);
+    const latency = Number(performance.average_latency_us);
+    $('throughputMetric').innerHTML = Number.isFinite(throughput)
+      ? throughput.toFixed(1) + ' <span style="font-size:12px;color:#9aa8bf">ops/sec</span>'
+      : '? <span style="font-size:12px;color:#9aa8bf">unavailable</span>';
+    $('latencyMetric').innerHTML = Number.isFinite(latency) && latency > 0
+      ? (latency / 1000).toFixed(2) + ' <span style="font-size:12px;color:#9aa8bf">ms avg</span>'
+      : '? <span style="font-size:12px;color:#9aa8bf">not measured</span>';
+    $('throughputCaption').textContent = 'Live - rolling 5-second window';
+    $('latencyCaption').textContent = 'Live - average since reset';
     $('ordersMetric').textContent = orderCount.toLocaleString();
     $('tradesMetric').textContent = tradeCount.toLocaleString();
     const aggregate = rows => {
@@ -139,10 +150,10 @@
       apiAvailable = true;
       $('chartState').textContent = 'Connected to local Python API';
       applyApiState(state);
-      $('throughputMetric').innerHTML = 'API <span style="font-size:12px;color:#9aa8bf">connected</span>';
-      $('latencyMetric').innerHTML = '— <span style="font-size:12px;color:#9aa8bf">not measured</span>';
     } catch (error) {
       apiAvailable = false;
+      $('throughputCaption').textContent = 'Demo reference - not live';
+      $('latencyCaption').textContent = 'Demo reference - not live';
       $('chartState').textContent = 'Python API unavailable; demo mode';
     }
   }
@@ -169,8 +180,6 @@
           const data=await response.json();
           if(!response.ok) throw new Error(data.error||'Simulation order failed');
           applyApiState(data.state);
-          $('throughputMetric').innerHTML='Local <span style="font-size:12px;color:#9aa8bf">engine</span>';
-          $('latencyMetric').innerHTML='— <span style="font-size:12px;color:#9aa8bf">not measured</span>';
         } catch(error) {
           $('chartState').textContent='API error: '+error.message;
         }
@@ -229,7 +238,13 @@
     notify('Simulation update rate changed.');
   });
   $('resetDemo').addEventListener('click', () => {
-    setRunning(false); orderCount=1284; tradeCount=426; sequence=2000;
+    setRunning(false);
+    if (apiAvailable) {
+      connectApi();
+      notify('Live API state refreshed. Persistent trade history is unchanged.');
+      return;
+    }
+    orderCount=1284; tradeCount=426; sequence=2000;
     $('ordersMetric').textContent=orderCount.toLocaleString(); $('tradesMetric').textContent=tradeCount.toLocaleString();
     $('throughputMetric').innerHTML='18.4k <span style="font-size:12px;color:#9aa8bf">/ sec</span>';
     $('latencyMetric').innerHTML='11.1 <span style="font-size:12px;color:#9aa8bf">ms</span>';
