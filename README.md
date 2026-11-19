@@ -11,6 +11,9 @@
 - Cython-based matching-engine implementation and integration tests.
 - Memory-mapped order buffer experiments, including FIFO, capacity, and wraparound checks.
 - Benchmark scripts for the engine and buffer implementations.
+- Independent order books for multiple symbols, with symbol-isolated matching.
+- Order cancellation by order ID, with optional symbol validation.
+- Local API with price validation, rolling 5-second throughput, and latency metrics.
 - Trade-ledger persistence and verification helpers.
 - Static trading-dashboard UI prototype in `ui/index.html`.
 
@@ -57,7 +60,7 @@ Run the automated test suite:
 python -m pytest -q
 ```
 
-A previous local run completed with **9 passed** before the local API service tests were added. Run the current suite after updating the environment; individual benchmark and experiment scripts may also need to be run separately.
+Latest verified regression run (19 November 2026): **74 tests passed and 5 subtests passed**. Run `python -m pytest -v` to verify the suite in your environment. Individual benchmark and experiment scripts are separate from the regression suite.
 
 Run the basic matching-engine example:
 
